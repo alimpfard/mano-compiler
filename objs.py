@@ -231,7 +231,7 @@ class Function(object):
               continue
           visited.add(fn)
           if fn.is_used(visited):
-              return
+              return True
       return False
 
 
