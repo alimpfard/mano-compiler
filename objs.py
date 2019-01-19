@@ -198,7 +198,7 @@ class Function(object):
     self.params = []
     self.vars   = {}
     self.consts = {}
-    self.is_used= False
+    self.reachable_from = set()
 
     self.return_type = None
 
@@ -217,6 +217,23 @@ class Function(object):
                             'function code.')
 
     self.code.append(line)
+
+  def is_used(self, visited = None):
+      if len(self.reachable_from) == 0:
+          return False
+      if any(x[0] == 'main' for x in self.reachable_from):
+          # Directly referenced from main
+          return True
+      visited = set() if visited is None else visited
+
+      for name,fn in self.reachable_from:
+          if fn in visited:
+              continue
+          visited.add(fn)
+          if fn.is_used(visited):
+              return
+      return False
+
 
   def addVar(self, name, typ):
     if not isValidIdentifier(name):
@@ -268,4 +285,3 @@ class Function(object):
       out.append('  %s' % i)
 
     return '\n'.join(out)
-

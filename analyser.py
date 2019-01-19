@@ -94,7 +94,8 @@ def getType(exp, functionset, line, funcname, func):
     return ('var', Type('WORD'))
   elif isinstance(exp, Call):
     target_func = functionset[exp.function]
-    target_func.is_used = True
+    target_func.reachable_from.add((funcname, func))
+
     for i in range(len(exp.arguments)):
       typ = ('var', target_func.vars[target_func.params[i]][0])
       assertType(exp.arguments[i], typ, line, funcname, func)

@@ -111,7 +111,7 @@ def generate_program(functionset):
     emit('')
     emit('')
     funcv = functionset[k]
-    if funcv.is_used or not OPTIMIZED_MODE:
+    if funcv.is_used() or not OPTIMIZED_MODE:
         generate_function(k, functionset[k])
 
   return concatenate(BUFFER)
@@ -126,14 +126,14 @@ def generate_function(name, func):
   emit('AND %s' % funcname, name, 'Address of %s' % name)
   # Just for the label.
   emit('NOP', funcname, 'Function %s' % name)
-
-  emit('BSA pop', comment='Getting return address')
-  emit('STA temp1')
-  for varname in reversed(func.params):
-    emit('BSA pop', comment='Processing arg %s' % varname)
-    emit('STA %s' % varname)
-  emit('LDA temp1')
-  emit('BSA push', comment='Putting return address back')
+  if len(func.params) > 0:
+    emit('BSA pop', comment='Getting return address')
+    emit('STA temp1')
+    for varname in reversed(func.params):
+      emit('BSA pop', comment='Processing arg %s' % varname)
+      emit('STA %s' % varname)
+    emit('LDA temp1')
+    emit('BSA push', comment='Putting return address back')
 
   generate_code(func)
 
@@ -469,5 +469,3 @@ def generate_exp_binary(func, expression):
     emit('BSA push')
   else:
     raise ManoGeneratorError('Unrecognized binary operand in assignment sentence.')
-
-
